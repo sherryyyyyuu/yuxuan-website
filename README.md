@@ -25,6 +25,8 @@ and `/#beyond`.
 - `app/globals.css`: layout, typography, and responsive styles.
 - `public/photos/` and `public/research/`: optimized public images.
 - `public/Yuxuan_Du_Academic_CV.pdf`: downloadable CV.
+- `public/favicon-yuxuan-v1.png` and `public/favicon.ico`: handwritten browser icon.
+- `public/og-graduation-v1.jpg`: graduation-cover image for link previews.
 - `index.html`: page title and social metadata.
 
 ## Deployment
