@@ -13,12 +13,12 @@ const navigation: { id: Section; label: string }[] = [
 
 const selected: ResearchItem[] = [
   {
-    title: "From Citations to Evidence: Citation Provenance in Citation-Supported AI Answers",
+    title: "Understanding Evidence Dependence in AI Answers",
     status: "Under review",
     authors: ["Yuxuan Du", "Phongsakon Konrad", "Shuai Ma", "Qiao Jin", "Xinru Wang", "Zhuoran Lu"],
     image: "/research/citation.webp",
     imageAlt: "Paper teaser showing citation-supported AI answers and the provenance of their underlying evidence",
-    summary: "Multiple citations in an AI answer do not necessarily represent independent underlying evidence. This project traces their provenance to the underlying evidence and examines how making citation dependence visible shapes users’ judgments.",
+    summary: "Multiple citations in an AI answer do not necessarily represent independent underlying evidence. This project traces how cited sources relate to shared evidence and examines how making these relationships visible shapes users’ judgments.",
   },
   {
     title: "Fact-check Your Information (FYI): A Design Probe to Understand How People Actually Fact-check Data-Driven Articles",
@@ -29,6 +29,14 @@ const selected: ResearchItem[] = [
     summary: "FYI is an interactive design probe for studying how people fact-check data-driven claims using AI chat, visualization, automated checks, and table inspection. Through user studies, we examine how readers combine these tools when verifying claims and calibrating trust.",
     link: "https://fyi.datavisards-hkust.workers.dev/",
     linkLabel: "Project",
+  },
+  {
+    title: "Evidence Use in LLM Verification",
+    status: "Under review",
+    authors: ["Yuxuan Du", "Phongsakon Konrad", "Serkan Ayvaz"],
+    image: "/research/grounded-verification.webp",
+    imageAlt: "SPACE overview showing evidence visibility, evidence-use constraints, post-generation control, and the matched-contrast study design",
+    summary: "Grounded LLM verification can change several parts of the evaluation setup at once, making it difficult to tell what actually drives an observed improvement. This project introduces SPACE and a matched-contrast design to separate the effects of evidence visibility, evidence-use constraints, and post-generation control.",
   },
   {
     title: "Who Chooses How Preferences Are Aggregated? Auditing Aggregation-Rule Authority in LLM-Based Group Recommendation",
@@ -51,11 +59,6 @@ const selected: ResearchItem[] = [
 ];
 
 const ongoing: ResearchItem[] = [
-  {
-    title: "Grounded LLM Verification and Evaluation",
-    status: "Manuscript in preparation",
-    summary: "How do evidence access, source-use rules, and citation requirements shape LLM verification outcomes?",
-  },
   {
     title: "Scope Fidelity in LLM-Assisted Refinement",
     status: "Work in progress",
