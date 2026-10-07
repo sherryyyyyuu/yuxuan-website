@@ -33,7 +33,7 @@ const selected: ResearchItem[] = [
   {
     title: "Evidence Use in LLM Verification",
     status: "Under review",
-    authors: ["Yuxuan Du", "Phongsakon Konrad", "Serkan Ayvaz"],
+    authors: ["Yuxuan Du"],
     image: "/research/grounded-verification.webp",
     imageAlt: "SPACE overview showing evidence visibility, evidence-use constraints, post-generation control, and the matched-contrast study design",
     summary: "Grounded LLM verification can change several parts of the evaluation setup at once, making it difficult to tell what actually drives an observed improvement. This project introduces SPACE and a matched-contrast design to separate the effects of evidence visibility, evidence-use constraints, and post-generation control.",
