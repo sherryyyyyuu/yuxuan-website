@@ -16,8 +16,10 @@ npm run dev
 ```
 
 Open http://127.0.0.1:4173/. If another preview is using that port, reuse it or
-stop it before starting this one. Pages are available at `/#about`, `/#research`,
-and `/#beyond`.
+stop it before starting this one. About, Research, and Beyond share one continuous
+page, with anchor links at `/#about`, `/#research`, and `/#beyond`. The navigation
+also highlights the current section while scrolling. Legacy `/#publications`
+and `/#experience` links continue to lead to Research.
 
 ## Editing
 

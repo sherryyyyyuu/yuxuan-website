@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-type Section = "intro" | "about" | "research" | "beyond";
+type Section = "about" | "research" | "beyond";
 type ResearchItem = { title: string; status: string; summary: string; authors?: string[]; link?: string; linkLabel?: string; image?: string; imageAlt?: string };
 
 const navigation: { id: Section; label: string }[] = [
@@ -33,7 +33,7 @@ const selected: ResearchItem[] = [
   {
     title: "Evidence Use in LLM Verification",
     status: "Under review",
-    authors: ["Yuxuan Du"],
+    authors: ["Yuxuan Du", "Phongsakon Konrad", "Serkan Ayvaz"],
     image: "/research/grounded-verification.webp",
     imageAlt: "SPACE overview showing evidence visibility, evidence-use constraints, post-generation control, and the matched-contrast study design",
     summary: "Grounded LLM verification can change several parts of the evaluation setup at once, making it difficult to tell what actually drives an observed improvement. This project introduces SPACE and a matched-contrast design to separate the effects of evidence visibility, evidence-use constraints, and post-generation control.",
@@ -108,71 +108,113 @@ function ContactIcon({ type }: { type: "email" | "linkedin" | "cv" }) {
   </svg>;
 }
 
-function getSection(): Section {
+function getHashSection(): Section | null {
   const hash = window.location.hash.slice(1);
   if (hash === "research" || hash === "publications" || hash === "experience") return "research";
   if (hash === "about" || hash === "cv") return "about";
   if (hash === "beyond") return "beyond";
-  return "intro";
+  return null;
 }
 
 export default function Home() {
-  const [section, setSection] = useState<Section>("intro");
+  const [activeSection, setActiveSection] = useState<Section>("about");
   const content = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const update = () => setSection(getSection());
-    const frame = window.requestAnimationFrame(update);
-    window.addEventListener("hashchange", update);
-    window.addEventListener("popstate", update);
+    const previousScrollRestoration = window.history.scrollRestoration;
+    window.history.scrollRestoration = "manual";
+    const sections = navigation.flatMap(({ id }) => {
+      const element = document.getElementById(id);
+      return element ? [{ id, element }] : [];
+    });
+    let frame = 0;
+
+    const updateActiveSection = () => {
+      const headerBottom = document.querySelector(".site-topbar")?.getBoundingClientRect().bottom ?? 0;
+      const marker = headerBottom + Math.min(100, window.innerHeight * .15);
+      let current: Section = "about";
+      for (const { id, element } of sections) {
+        if (element.getBoundingClientRect().top <= marker) current = id;
+      }
+      const pageHeight = document.documentElement.scrollHeight;
+      if (pageHeight > window.innerHeight && window.scrollY + window.innerHeight >= pageHeight - 2) {
+        current = sections.at(-1)?.id ?? current;
+      }
+      setActiveSection(current);
+    };
+
+    const requestUpdate = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        updateActiveSection();
+      });
+    };
+
+    const alignHash = (initial = false) => {
+      const target = getHashSection();
+      if (target && (initial || window.location.hash.slice(1) !== target)) {
+        if (window.location.hash.slice(1) !== target) {
+          window.history.replaceState(null, "", `#${target}`);
+        }
+        document.getElementById(target)?.scrollIntoView({ behavior: "instant" });
+      }
+    };
+
+    const handleHashChange = () => {
+      alignHash();
+      requestUpdate();
+    };
+
+    const handlePopState = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        if (getHashSection()) alignHash(true);
+        else window.scrollTo({ top: 0, behavior: "instant" });
+        updateActiveSection();
+      });
+    };
+
+    frame = window.requestAnimationFrame(() => {
+      frame = 0;
+      alignHash(true);
+      updateActiveSection();
+    });
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+    window.addEventListener("hashchange", handleHashChange);
+    window.addEventListener("popstate", handlePopState);
     return () => {
       window.cancelAnimationFrame(frame);
-      window.removeEventListener("hashchange", update);
-      window.removeEventListener("popstate", update);
+      window.history.scrollRestoration = previousScrollRestoration;
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+      window.removeEventListener("hashchange", handleHashChange);
+      window.removeEventListener("popstate", handlePopState);
     };
   }, []);
 
-  const navigate = (next: Section) => {
-    window.history.pushState(null, "", next === "intro" ? window.location.pathname : `#${next}`);
-    setSection(next);
-    window.scrollTo({ top: 0, behavior: "instant" });
-    if (next !== "intro") window.requestAnimationFrame(() => content.current?.focus({ preventScroll: true }));
-  };
-
   return (
-    <>
-      <main className="entrance" hidden={section !== "intro"}>
-        <button className="entrance-surface" onClick={() => navigate("about")} aria-label="Enter Yuxuan Du’s website">
-          <span className="entrance-atmosphere" aria-hidden="true" />
-          <span className="entrance-tint" aria-hidden="true" />
-          <img className="entrance-photo" src="/photos/entrance-1280.webp" srcSet="/photos/entrance-640.webp 640w, /photos/entrance-1280.webp 1280w" sizes="(max-width: 700px) min(88vw, 430px), min(56vw, 520px, 68svh)" width="1280" height="1920" fetchPriority="high" alt="Yuxuan Du in her graduation gown, looking back with a smile" />
-          <span className="entrance-caption">
-            <h1 className="entrance-title"><span className="entrance-greeting">Hi, I’m</span>{" "}<em>Yuxuan Du.</em></h1>
-            <span className="entrance-focus">I study how generative AI shapes human judgment and decision-making.</span>
-            <span className="entrance-action">Let’s dive in</span>
-          </span>
-        </button>
-      </main>
-
-      <div className="main-site" hidden={section === "intro"}>
+      <div className="main-site">
         <a className="skip-link" href="#main-content" onClick={(event) => { event.preventDefault(); content.current?.focus(); }}>Skip to content</a>
-        <aside className="identity">
-          <button className="identity-portrait-link" onClick={() => navigate("intro")} aria-label="Return to the entry page"><img className="identity-photo" src="/photos/portrait-soft-640.webp" width="640" height="427" alt="Portrait of Yuxuan Du in soft natural light" decoding="async" /></button>
-          <p className="identity-name">Yuxuan Du</p>
+        <aside className="identity" aria-label="Profile and contact">
+          <a className="identity-portrait-link" href="#about" aria-label="Back to About"><img className="identity-photo" src="/photos/portrait-soft-640.webp" width="640" height="427" alt="Portrait of Yuxuan Du in soft natural light" fetchPriority="high" decoding="async" /></a>
+          <h1 className="identity-name">Yuxuan Du</h1>
           <div className="identity-links">
-            <a className="identity-email" href="mailto:yuxuan.du.sherry@gmail.com"><ContactIcon type="email" /><span>yuxuan.du.sherry@gmail.com</span></a>
+            <a className="identity-email" href="mailto:yuxuan.du.sherry@gmail.com"><ContactIcon type="email" /><span>yuxuan.du.sherry@<wbr />gmail.com</span></a>
             <a href="https://www.linkedin.com/in/yuxuan-du-23015338a" target="_blank" rel="noreferrer" aria-label="Yuxuan Du on LinkedIn"><ContactIcon type="linkedin" />LinkedIn</a>
             <a href="/Yuxuan_Du_Academic_CV.pdf" target="_blank" rel="noreferrer" aria-label="View Yuxuan Du’s CV"><ContactIcon type="cv" />CV</a>
           </div>
         </aside>
         <header className="site-topbar">
           <nav className="section-nav" aria-label="Main navigation">
-            {navigation.map((item) => <a key={item.id} href={`#${item.id}`} onClick={(event) => { event.preventDefault(); navigate(item.id); }} aria-current={section === item.id ? "page" : undefined}>{item.label}</a>)}
+            {navigation.map((item) => <a key={item.id} href={`#${item.id}`} aria-current={activeSection === item.id ? "location" : undefined}>{item.label}</a>)}
           </nav>
         </header>
 
         <main className="content" id="main-content" ref={content} tabIndex={-1}>
-          <section className="page-section about-page" hidden={section !== "about"} aria-labelledby="about-heading">
+          <section className="page-section about-page" id="about" aria-labelledby="about-heading">
             <header className="page-heading"><h2 id="about-heading">About me</h2></header>
             <div className="about-copy">
               <p className="about-lead">I’m Yuxuan Du, an early-career researcher working at the intersection of Human–AI Interaction, AI-mediated judgment and decision-making, and LLM evaluation. Broadly, I am interested in how generative AI shapes human judgment through the information and support it provides.</p>
@@ -185,14 +227,14 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="page-section research-page" hidden={section !== "research"} aria-labelledby="research-heading">
+          <section className="page-section research-page" id="research" aria-labelledby="research-heading">
             <header className="page-heading"><h2 id="research-heading">Research</h2></header>
             <div className="research-group"><h2 className="group-heading">Selected Research</h2><ResearchList items={selected} /><p className="author-note">* Equal contribution.</p></div>
             <div className="research-group"><h2 className="group-heading">Ongoing Research</h2><ResearchList items={ongoing} /></div>
             <div className="research-group earlier-group"><h2 className="group-heading">Earlier Research</h2><ResearchList items={earlier} /></div>
           </section>
 
-          <section className="page-section beyond-page" hidden={section !== "beyond"} aria-labelledby="beyond-heading">
+          <section className="page-section beyond-page" id="beyond" aria-labelledby="beyond-heading">
             <header className="page-heading"><h2 id="beyond-heading">Beyond Research</h2></header>
             <p className="beyond-copy">Outside research, strength training and bodybuilding are a big part of my life. I’m also an NSCA-Certified Personal Trainer (NSCA-CPT). I recently started bouldering and am still very much a beginner. I also enjoy dancing, hiking, drawing, and trying new things.</p>
             <div className="photo-journal">
@@ -207,6 +249,5 @@ export default function Home() {
           <footer className="site-footer"><span>© {new Date().getFullYear()} Yuxuan Du</span></footer>
         </main>
       </div>
-    </>
   );
 }
