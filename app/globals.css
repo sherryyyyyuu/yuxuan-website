@@ -65,7 +65,6 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outlin
 .opportunity a { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .about-subheading { margin: 26px 0 12px; font-size: 1.0625rem; line-height: 1.4; font-weight: 650; }
 .group-heading { display: flex; align-items: center; gap: 14px; margin: 0 0 24px; color: #64736c; font-size: var(--metadata); line-height: 1.5; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; }
-.group-heading::after { flex: 1; min-width: 20px; height: 1px; background: rgba(85,122,99,.2); content: ""; }
 .research-page { container: research / inline-size; }
 .research-page .page-heading { margin-bottom: 28px; }
 .research-group + .research-group { margin-top: 42px; }
