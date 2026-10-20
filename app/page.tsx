@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 type Section = "about" | "research" | "beyond";
-type ResearchItem = { title: string; status: string; summary: string; authors?: string[]; link?: string; linkLabel?: string; image?: string; imageAlt?: string };
+type ResearchItem = { title: string; status: string; summary: string; publicationGroup?: "published"; authors?: string[]; link?: string; linkLabel?: string; image?: string; imageAlt?: string };
 
 const navigation: { id: Section; label: string }[] = [
   { id: "about", label: "About" },
@@ -23,6 +23,7 @@ const selected: ResearchItem[] = [
   {
     title: "Fact-check Your Information (FYI): A Design Probe to Understand How People Actually Fact-check Data-Driven Articles",
     status: "IEEE TVCG, in press · IEEE VIS 2026",
+    publicationGroup: "published",
     authors: ["Nguyen-Truong Thinh*", "Yuxuan Du*", "Phongsakon Mark Konrad", "Arpit Narechania"],
     image: "/research/fyi.webp",
     imageAlt: "FYI design probe with claim detection, AI chat, automated checks, table inspection, and visualization",
@@ -51,6 +52,7 @@ const selected: ResearchItem[] = [
   {
     title: "What Personalized Agents Make Visible: A Diagnostic Framework for AI-Mediated Judgment",
     status: "UbiComp/ISWC 2026 Reality Mediation Workshop · UbiComp Companion",
+    publicationGroup: "published",
     authors: ["Yuxuan Du", "Shuai Ma", "Zhuoran Lu"],
     image: "/research/personalized-evidence.webp",
     imageAlt: "Conceptual illustration of two users viewing partly shared and partly distinct evidence through overlapping personalized panes",
@@ -82,14 +84,17 @@ const earlier: ResearchItem[] = [
   },
 ];
 
-function ResearchList({ items }: { items: ResearchItem[] }) {
+const published = selected.filter((item) => item.publicationGroup === "published");
+const underReview = selected.filter((item) => item.publicationGroup !== "published");
+
+function ResearchList({ items, onEnlarge }: { items: ResearchItem[]; onEnlarge: (item: ResearchItem) => void }) {
   return (
     <div className="research-list">
       {items.map((item) => (
         <article className={`research-item${item.image ? " research-item-illustrated" : ""}`} key={item.title}>
-          {item.image && <figure className="research-thumbnail"><img src={item.image} width="900" height="600" alt={item.imageAlt} loading="lazy" decoding="async" /></figure>}
+          {item.image && <figure className="research-thumbnail"><button type="button" className="figure-trigger" onClick={() => onEnlarge(item)} aria-label={`Enlarge research figure: ${item.title}`} aria-haspopup="dialog"><img src={item.image} width="900" height="600" alt={item.imageAlt} loading="lazy" decoding="async" /><span className="figure-zoom" aria-hidden="true"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5M3 3l6 6M21 3l-6 6M3 21l6-6M21 21l-6-6" /></svg></span></button></figure>}
           <div className="research-details">
-            <h3>{item.title}</h3>
+            <h4>{item.title}</h4>
             {item.authors && <p className="research-authors">{item.authors.map((author, index) => <span key={author}>{index > 0 && ", "}{author.startsWith("Yuxuan Du") ? <strong>{author}</strong> : author}</span>)}</p>}
             <p className="research-status">{item.status}{item.link && <> · <a className="text-link" href={item.link} target="_blank" rel="noreferrer">{item.linkLabel}</a></>}</p>
             <p className="research-summary">{item.summary}</p>
@@ -98,6 +103,35 @@ function ResearchList({ items }: { items: ResearchItem[] }) {
       ))}
     </div>
   );
+}
+
+function FigurePreview({ item, onClose }: { item: ResearchItem | null; onClose: () => void }) {
+  const dialog = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    if (!item) return;
+    const element = dialog.current;
+    const previousOverflow = document.body.style.overflow;
+    element?.showModal();
+    document.body.style.overflow = "hidden";
+    return () => {
+      element?.close();
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [item]);
+
+  return <dialog ref={dialog} className="figure-dialog" aria-labelledby="figure-dialog-title" onCancel={onClose} onKeyDown={(event) => {
+    if (event.key === "Tab") {
+      // The close button is the figure viewer's only interactive control.
+      event.preventDefault();
+      dialog.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    }
+  }} onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <div className="figure-dialog-content">
+      <header><h2 id="figure-dialog-title">{item?.title}</h2><button type="button" className="dialog-close" onClick={onClose} aria-label="Close enlarged figure"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6" /></svg></button></header>
+      {item?.image && <img src={item.image} alt={item.imageAlt} />}
+    </div>
+  </dialog>;
 }
 
 function ContactIcon({ type }: { type: "email" | "linkedin" | "cv" }) {
@@ -118,6 +152,7 @@ function getHashSection(): Section | null {
 
 export default function Home() {
   const [activeSection, setActiveSection] = useState<Section>("about");
+  const [enlargedFigure, setEnlargedFigure] = useState<ResearchItem | null>(null);
   const content = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -201,8 +236,9 @@ export default function Home() {
         <aside className="identity" aria-label="Profile and contact">
           <a className="identity-portrait-link" href="#about" aria-label="Back to About"><img className="identity-photo" src="/photos/portrait-soft-640.webp" width="640" height="427" alt="Portrait of Yuxuan Du in soft natural light" fetchPriority="high" decoding="async" /></a>
           <h1 className="identity-name">Yuxuan Du</h1>
+          <p className="identity-opportunity">Seeking PhD opportunities <span>· 2027</span></p>
           <div className="identity-links">
-            <a className="identity-email" href="mailto:yuxuan.du.sherry@gmail.com"><ContactIcon type="email" /><span>yuxuan.du.sherry@<wbr />gmail.com</span></a>
+            <a className="identity-email" href="mailto:yuxuan.du.sherry@gmail.com" title="yuxuan.du.sherry@gmail.com"><ContactIcon type="email" /><span>Email</span></a>
             <a href="https://www.linkedin.com/in/yuxuan-du-23015338a" target="_blank" rel="noreferrer" aria-label="Yuxuan Du on LinkedIn"><ContactIcon type="linkedin" />LinkedIn</a>
             <a href="/Yuxuan_Du_Academic_CV.pdf" target="_blank" rel="noreferrer" aria-label="View Yuxuan Du’s CV"><ContactIcon type="cv" />CV</a>
           </div>
@@ -229,25 +265,27 @@ export default function Home() {
 
           <section className="page-section research-page" id="research" aria-labelledby="research-heading">
             <header className="page-heading"><h2 id="research-heading">Research</h2></header>
-            <div className="research-group"><h2 className="group-heading">Selected Research</h2><ResearchList items={selected} /><p className="author-note">* Equal contribution.</p></div>
-            <div className="research-group"><h2 className="group-heading">Ongoing Research</h2><ResearchList items={ongoing} /></div>
-            <div className="research-group earlier-group"><h2 className="group-heading">Earlier Research</h2><ResearchList items={earlier} /></div>
+            <div className="research-group published-group"><h3 className="group-heading">Published &amp; Accepted</h3><ResearchList items={published} onEnlarge={setEnlargedFigure} /><p className="author-note">* Equal contribution.</p></div>
+            <div className="research-group under-review-group"><h3 className="group-heading">Under Review &amp; Preprints</h3><ResearchList items={underReview} onEnlarge={setEnlargedFigure} /></div>
+            <div className="research-group ongoing-group"><h3 className="group-heading">Ongoing Research</h3><ResearchList items={ongoing} onEnlarge={setEnlargedFigure} /></div>
+            <div className="research-group earlier-group"><h3 className="group-heading">Earlier Research</h3><ResearchList items={earlier} onEnlarge={setEnlargedFigure} /></div>
           </section>
 
           <section className="page-section beyond-page" id="beyond" aria-labelledby="beyond-heading">
             <header className="page-heading"><h2 id="beyond-heading">Beyond Research</h2></header>
             <p className="beyond-copy">Outside research, strength training and bodybuilding are a big part of my life. I’m also an NSCA-Certified Personal Trainer (NSCA-CPT). I recently started bouldering and am still very much a beginner. I also enjoy dancing, hiking, drawing, and trying new things.</p>
             <div className="photo-journal">
-              <figure className="journal-bouldering"><img src="/photos/bouldering-900.webp" srcSet="/photos/bouldering-450.webp 450w, /photos/bouldering-900.webp 900w" sizes="(max-width: 700px) 44vw, 245px" width="853" height="1138" alt="Yuxuan climbing an indoor bouldering wall" loading="lazy" decoding="async" /></figure>
+              <figure className="journal-bouldering"><img src="/photos/bouldering-900.webp" srcSet="/photos/bouldering-450.webp 450w, /photos/bouldering-900.webp 900w" sizes="(max-width: 600px) 90vw, (max-width: 900px) 30vw, 300px" width="853" height="1138" alt="Yuxuan climbing an indoor bouldering wall" loading="lazy" decoding="async" /></figure>
               <figure className="journal-dance"><img src="/photos/dance-900.webp" srcSet="/photos/dance-450.webp 450w, /photos/dance-900.webp 900w" sizes="(max-width: 700px) 44vw, 245px" width="900" height="1200" alt="Yuxuan practising dance in a studio" loading="lazy" decoding="async" /></figure>
               <figure className="journal-matcha"><img src="/photos/matcha-900.webp" srcSet="/photos/matcha-450.webp 450w, /photos/matcha-900.webp 900w" sizes="(max-width: 700px) 44vw, 245px" width="900" height="1200" alt="Yuxuan whisking matcha in a ceramic bowl" loading="lazy" decoding="async" /></figure>
               <figure className="journal-hiking"><img src="/photos/hiking-900.webp" srcSet="/photos/hiking-450.webp 450w, /photos/hiking-900.webp 900w" sizes="(max-width: 700px) 44vw, 245px" width="900" height="1200" alt="Yuxuan hiking among snow-covered trees, holding trekking poles" loading="lazy" decoding="async" /></figure>
               <figure className="journal-drawing"><img src="/photos/drawing-900.webp" srcSet="/photos/drawing-450.webp 450w, /photos/drawing-900.webp 900w" sizes="(max-width: 700px) 44vw, 245px" width="900" height="1200" alt="An open sketchbook filled with hand-drawn plants beside a pen" loading="lazy" decoding="async" /></figure>
-              <figure className="journal-outdoor"><img src="/photos/outdoor-climbing-900.webp" srcSet="/photos/outdoor-climbing-450.webp 450w, /photos/outdoor-climbing-900.webp 900w" sizes="(max-width: 700px) 44vw, 245px" width="900" height="1200" alt="Yuxuan climbing an outdoor rock face under a cloudy sky" loading="lazy" decoding="async" /></figure>
+              <figure className="journal-outdoor"><img src="/photos/outdoor-climbing-900.webp" srcSet="/photos/outdoor-climbing-450.webp 450w, /photos/outdoor-climbing-900.webp 900w" sizes="(max-width: 600px) 90vw, (max-width: 900px) 30vw, 300px" width="900" height="1200" alt="Yuxuan climbing an outdoor rock face under a cloudy sky" loading="lazy" decoding="async" /></figure>
             </div>
           </section>
           <footer className="site-footer"><span>© {new Date().getFullYear()} Yuxuan Du</span></footer>
         </main>
+        <FigurePreview item={enlargedFigure} onClose={() => setEnlargedFigure(null)} />
       </div>
   );
 }

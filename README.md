@@ -27,9 +27,15 @@ and `/#experience` links continue to lead to Research.
 - `app/globals.css`: layout, typography, and responsive styles.
 - `public/photos/` and `public/research/`: optimized public images.
 - `public/Yuxuan_Du_Academic_CV.pdf`: downloadable CV.
-- `public/favicon-yuxuan-v1.png` and `public/favicon.ico`: handwritten browser icon.
+- `public/favicon-y-v2.svg`, `public/favicon-y-v2.png`, and `public/favicon.ico`: burgundy-and-ivory serif Y browser icon.
 - `public/og-graduation-v1.jpg`: graduation-cover image for link previews.
 - `index.html`: page title and social metadata.
+
+Research is grouped into Published & Accepted, Under Review & Preprints,
+Ongoing Research, and Earlier Research. Project figures open in a native,
+keyboard-accessible enlargement dialog; Escape or the close button dismisses it.
+Typography and spacing tokens live in `app/globals.css`. The profile sidebar
+becomes a compact header below 900px; research figures stack below 600px.
 
 ## Deployment
 
