@@ -27,7 +27,7 @@ and `/#experience` links continue to lead to Research.
 - `app/globals.css`: layout, typography, and responsive styles.
 - `public/photos/` and `public/research/`: optimized public images.
 - `public/Yuxuan_Du_Academic_CV.pdf`: downloadable CV.
-- `public/favicon-yuxuan-v1.png` and `public/favicon.ico`: handwritten browser icon.
+- `public/favicon-y-handwritten-v2.svg`: handwritten Y browser icon; versioned PNG/ICO files provide fallbacks, and `public/favicon.ico` supports direct browser requests.
 - `public/og-graduation-v1.jpg`: graduation-cover image for link previews.
 - `index.html`: page title and social metadata.
 

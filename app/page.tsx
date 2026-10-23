@@ -252,7 +252,7 @@ export default function Home() {
               <p>My research focuses on <strong>AI-mediated judgment and decision-making</strong>, particularly in two areas:</p>
               <ul className="research-sides"><li>AI-provided evidence and human judgment: How AI systems use evidence and how people interpret it when deciding whether to rely on AI.</li><li>AI agency in decision-making: How AI systems take on more active roles in decision-making, particularly when they make choices on users’ behalf.</li></ul>
               <h3 className="about-subheading">Education</h3>
-              <p>I began doctoral study at the Hong Kong University of Science and Technology (HKUST) in 2025 as a recipient of the Hong Kong Postgraduate Scholarship. I left the program in January 2026 following a change in funding.</p>
+              <p>I began doctoral study at the Hong Kong University of Science and Technology (HKUST) in 2025 with the Hong Kong Postgraduate Scholarship. I left the program in January 2026 following a change in funding.</p>
               <p>I received my Master’s degree in Management from Southeast University in 2025, with a GPA of 3.9/4.0. I completed my Bachelor’s degree in Engineering at Central South University in 2022, graduating in the top 2% of my cohort. During my undergraduate studies, I also received the National Scholarship awarded by the Ministry of Education of China.</p>
             </div>
           </section>
